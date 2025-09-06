@@ -7,6 +7,7 @@ export function initSenders(nexus, osc) {
   }
 
   initTonematrixSenders(nexus, osc);
+  initStompboxDelaySenders(nexus, osc);
 }
 
 function initTonematrixSenders(nexus, osc) {
@@ -14,18 +15,30 @@ function initTonematrixSenders(nexus, osc) {
   function subscribeTM(tm) {
     const id = tm.location.entityId;
     nexus.events.onUpdate(tm.fields.patternIndex, (newPattern) => {
-      handlePatternUpdate(id, newPattern, osc);
+      handleTMPatternUpdate(id, newPattern, osc);
     }, false);
   }
 
   // Existing tonematrices
   nexus.queryEntities.ofTypes("tonematrix").get().forEach(subscribeTM);
 
-  // Future tonematrices
-  nexus.events.onCreate("tonematrix", (tm) => {
-    console.log("New tonematrix created:", tm.location.entityId);
-    subscribeTM(tm);
-  });
+  // New tonematrices
+  nexus.events.onCreate("tonematrix", subscribeTM);
+}
+
+function initStompboxDelaySenders(nexus, osc) {
+  function subscribeSBD(sbd) {
+    const id = sbd.location.entityId;
+    nexus.events.onUpdate(sbd.fields.feedbackFactor, (newFeedback) => {
+      handleSBDFeedbackUpdate(id, newFeedback, osc);
+    }, false);
+  } 
+
+  // Existing delay devices
+  nexus.queryEntities.ofTypes("stompboxDelay").get().forEach(subscribeSBD);
+
+  // New delay devices
+  nexus.events.onCreate("stompboxDelay", subscribeSBD);
 }
 
 
@@ -36,9 +49,16 @@ function handleGainUpdate(newValue, osc) {
   // console.log('Sent /mixer/gain = ', gain);
 }
 
-function handlePatternUpdate(id, newPattern, osc) {
+function handleTMPatternUpdate(id, newPattern, osc) {
   const address = `/tonematrix/${id}/pattern`;
   const msg = new OSC.Message(address, newPattern);
   osc.send(msg);
   // console.log(`Sent ${address} =`, newPattern);
+}
+
+function handleSBDFeedbackUpdate(id, feedback, osc) {
+  const address = `/delay/${id}/feedback`;
+  const msg = new OSC.Message(address, feedback);
+  osc.send(msg);
+  // console.log(`Sent ${address} =`, feedback);
 }
