@@ -1,0 +1,14 @@
+{
+  "name": "osc_consumer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "osc-js": "^2.4.1"
+  }
+}
