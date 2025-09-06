@@ -1,0 +1,44 @@
+import OSC from "osc-js"
+
+export function initSenders(nexus, osc) {
+  const mixer = nexus.queryEntities.ofTypes("mixerOut").getOne();
+  if (mixer) {
+    nexus.events.onUpdate(mixer.fields.postGain, (newValue) => handleGainUpdate(newValue, osc), false);
+  }
+
+  initTonematrixSenders(nexus, osc);
+}
+
+function initTonematrixSenders(nexus, osc) {
+  // Helper to subscribe to one Tonematrix
+  function subscribeTM(tm) {
+    const id = tm.location.entityId;
+    nexus.events.onUpdate(tm.fields.patternIndex, (newPattern) => {
+      handlePatternUpdate(id, newPattern, osc);
+    }, false);
+  }
+
+  // Existing tonematrices
+  nexus.queryEntities.ofTypes("tonematrix").get().forEach(subscribeTM);
+
+  // Future tonematrices
+  nexus.events.onCreate("tonematrix", (tm) => {
+    console.log("New tonematrix created:", tm.location.entityId);
+    subscribeTM(tm);
+  });
+}
+
+
+function handleGainUpdate(newValue, osc) {
+  const gain = newValue;
+  const msg = new OSC.Message('/mixer/gain', gain);
+  osc.send(msg);
+  // console.log('Sent /mixer/gain = ', gain);
+}
+
+function handlePatternUpdate(id, newPattern, osc) {
+  const address = `/tonematrix/${id}/pattern`;
+  const msg = new OSC.Message(address, newPattern);
+  osc.send(msg);
+  // console.log(`Sent ${address} =`, newPattern);
+}

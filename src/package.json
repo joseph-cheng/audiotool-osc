@@ -1,0 +1,15 @@
+{
+  "name": "audiotool-osc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@audiotool/nexus": "file:audiotool-nexus-0.0.2.tgz",
+    "osc-js": "^2.4.1"
+  }
+}
