@@ -11,15 +11,16 @@ const nexus = await client.createSyncedDocument({
 
 await nexus.start();
 
+osc.on('/mixer_gain',message =>{
 nexus.modify((t) => {
   const mixer = t.entities.ofTypes("mixerOut").getOne()
   if (mixer != undefined) {
-    t.update(mixer.fields.postGain, 0.5)
+    t.update(mixer.fields.postGain, message.args[0])
   }
 })
-
-osc.on('*', message => {
-  console.log(message.args);
-});
+})
+// osc.on('/mixer_gain', message => {
+//   console.log(message);
+// });
 
 osc.open({ port: 1130 });
