@@ -1,8 +1,9 @@
 import * as OSC from "osc-js";
 import { createAudiotoolClient } from "@audiotool/nexus"
-import { handlers } from "./handlers.js"
+import { initReceivers } from "./receivers.js"
+import { initSenders } from "./senders.js"
 
-const osc = new OSC.default({plugin: new OSC.default.DatagramPlugin()});
+const osc = new OSC.default({plugin: new OSC.default.DatagramPlugin({ send: { port: 1131, host: '127.0.0.1' } })});
 const client = await createAudiotoolClient({pat: process.env.API_KEY });
 
 const nexus = await client.createSyncedDocument({
@@ -12,9 +13,10 @@ const nexus = await client.createSyncedDocument({
 
 await nexus.start();
 
-osc.on("/*", (message) => {
-  const handler = handlers[message.address];
-  if (handler) handler(nexus, message);
-});
-
 osc.open({ port: 1130 });
+
+osc.on("open", () => {
+  console.log("OSC connection opened");
+  initReceivers(nexus, osc);
+  initSenders(nexus, osc);
+});
