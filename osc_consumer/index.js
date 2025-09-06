@@ -3,11 +3,11 @@ import { createAudiotoolClient } from "@audiotool/nexus"
 import { handlers } from "./handlers.js"
 
 const osc = new OSC.default({plugin: new OSC.default.DatagramPlugin()});
-const client = await createAudiotoolClient({pat: "at_pat_4lAaFOoUp_0prSg1TyxV-AEuSzlL0u-GzbQ4VnT2UWs" });
+const client = await createAudiotoolClient({pat: process.env.API_KEY });
 
 const nexus = await client.createSyncedDocument({
   mode: "online",
-  project: "https://beta.audiotool.com/studio?project=dc2ab279-d4ee-436b-9635-091caa5d7423",
+  project: process.env.PROJECT_URL,
 });
 
 await nexus.start();
