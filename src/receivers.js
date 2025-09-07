@@ -41,7 +41,7 @@ function handleAutoFilterFrequency(nexus, message) {
     const entity = t.entities.ofTypes('autoFilter').getOne()
     if (entity) {
       // frequencyHz expects a number (Hz)
-      t.update(entity.fields.frequencyHz, message.args[0])
+      t.update(entity.fields.frequencyHz, Math.max(Math.min(message.args[0], 10000), 18))
     }
   })
 }
