@@ -1,17 +1,7 @@
-// receivers.js
-
-// Initialize OSC → Audiotool routing
 export function initReceivers(nexus, osc) {
-  // Explicit routes (most reliable)
   osc.on('/mixer/gain', (message) => handleMixerGain(nexus, message))
   osc.on('/mixeraux/roomsize', (message) => handleReverbRoomSize(nexus, message))
   osc.on('/autoFilter/frequency', (message) => handleAutoFilterFrequency(nexus, message))
-
-  // Optional: deep wildcard to log *everything* you receive (great for debugging)
-  // Comment out if too chatty.
-  osc.on('/**', (m) => {
-    // console.log('[OSC]', m.address, m.args)
-  })
 }
 
 // Handlers
