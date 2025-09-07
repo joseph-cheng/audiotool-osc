@@ -2,6 +2,7 @@ export function initReceivers(nexus, osc) {
   osc.on('/mixer/gain', (message) => handleMixerGain(nexus, message))
   osc.on('/mixeraux/roomsize', (message) => handleReverbRoomSize(nexus, message))
   osc.on('/autoFilter/frequency', (message) => handleAutoFilterFrequency(nexus, message))
+  osc.on('/quasar/plateDecay', (message) => handleQuasarPlateDecay(nexus, message))
 }
 
 // Handlers
@@ -31,7 +32,17 @@ function handleAutoFilterFrequency(nexus, message) {
     const entity = t.entities.ofTypes('autoFilter').getOne()
     if (entity) {
       // frequencyHz expects a number (Hz)
-      t.update(entity.fields.frequencyHz, message.args[0])
+      t.update(entity.fields.frequencyHz, Math.max(Math.min(message.args[0], 10000), 18))
+    }
+  })
+}
+
+function handleQuasarPlateDecay(nexus, message) {
+  nexus.modify((t) => {
+    const entity = t.entities.ofTypes('quasar').getOne()
+    if (entity) {
+      // between 0-1
+      t.update(entity.fields.plateDecay, Math.max(Math.min(message.args[0], 1), 0))
     }
   })
 }
